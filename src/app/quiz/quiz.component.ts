@@ -40,19 +40,25 @@ export class QuizComponent implements OnInit {
   endTime: Date;
   ellapsedTime = '00:00';
   duration = '';
+  userId: any;
 
-  constructor(private quizService: QuizService) { }
+  constructor(private quizService: QuizService) { 
+    let userInfo = sessionStorage.getItem("userInfo");
+    if(userInfo)
+      this.userId = JSON.parse(userInfo).id
+  }
 
   ngOnInit() {
+
     this.quizes = this.quizService.getAll();
     this.quizName = this.quizes[0].id;
     this.loadQuiz(this.quizName);
   }
 
   loadQuiz(quizName: string) {
-    this.quizService.get(quizName).subscribe(res => {
+    this.quizService.getQuestions(this.userId).subscribe((res: any) => {
       this.quiz = new Quiz(res);
-      this.pager.count = this.quiz.questions.length;
+      this.pager.count = res.questions.length;
       this.startTime = new Date();
       this.ellapsedTime = '00:00';
       this.timer = setInterval(() => { this.tick(); }, 1000);
